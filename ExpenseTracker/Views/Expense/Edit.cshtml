@@ -1,0 +1,185 @@
+﻿@model ExpenseTracker.Models.Expense
+@{
+    ViewData["Title"] = "Edit Expense";
+}
+
+<style>
+    .form-page {
+        min-height: 100vh;
+        background: #0F0F1A;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .form-card {
+        background: #141420;
+        border: 1px solid #ffffff10;
+        border-radius: 18px;
+        padding: 40px;
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .form-card h2 {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .form-card h2 span {
+        background: linear-gradient(90deg, #FFE66D, #F97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-subtitle {
+        color: #555;
+        font-size: 13px;
+        margin-bottom: 32px;
+    }
+
+    .form-group-dark {
+        margin-bottom: 20px;
+    }
+
+    .form-group-dark label {
+        color: #888;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-group-dark input,
+    .form-group-dark select,
+    .form-group-dark textarea {
+        width: 100%;
+        background: #0F0F1A;
+        border: 1px solid #ffffff15;
+        color: #fff;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-group-dark input:focus,
+    .form-group-dark select:focus,
+    .form-group-dark textarea:focus {
+        border-color: #FFE66D;
+        box-shadow: 0 0 0 3px #FFE66D18;
+    }
+
+    .form-group-dark select option { background: #1a1a2e; }
+    .form-group-dark textarea { resize: vertical; min-height: 90px; }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+
+    .text-danger { color: #FF6B6B !important; font-size: 12px; margin-top: 4px; display: block; }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: linear-gradient(135deg, #FFE66D, #F97316);
+        color: #0F0F1A;
+        border: none;
+        padding: 13px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover { opacity: 0.85; }
+
+    .btn-back {
+        background: transparent;
+        color: #aaa;
+        border: 1px solid #ffffff18;
+        padding: 13px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-back:hover { color: #fff; border-color: #ffffff44; background: #ffffff0a; text-decoration: none; }
+</style>
+
+<div class="form-page">
+    <div class="form-card">
+
+        <h2>Edit <span>Expense</span></h2>
+        <p class="form-subtitle">Update the details of your expense</p>
+
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group-dark">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Amount"></label>
+                <input asp-for="Amount" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Category"></label>
+                <select asp-for="Category">
+                    <option value="">-- Select Category --</option>
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Bills</option>
+                    <option>Health</option>
+                    <option>Entertainment</option>
+                    <option>Education</option>
+                </select>
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Date"></label>
+                <input asp-for="Date" type="date" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Update Expense</button>
+                <a asp-action="Index" class="btn-back">← Back</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

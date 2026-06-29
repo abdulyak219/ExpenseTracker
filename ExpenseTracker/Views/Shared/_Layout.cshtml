@@ -1,0 +1,755 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ExpenseTracker</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ExpenseTracker.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<IdentityUser> SignInManager
+    @inject UserManager<IdentityUser> UserManager
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0F0F1A;
+            color: #ccc;
+            min-height: 100vh;
+        }
+
+        /* ── LAYOUT ── */
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: #141420;
+            border-right: 1px solid #ffffff10;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 8px 28px;
+            border-bottom: 1px solid #ffffff08;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+            .sidebar-brand .brand-icon {
+                width: 36px;
+                height: 36px;
+                background: linear-gradient(135deg, #A78BFA, #4ECDC4);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+
+            .sidebar-brand .brand-name {
+                font-size: 16px;
+                font-weight: 700;
+                color: #fff;
+            }
+
+                .sidebar-brand .brand-name span {
+                    color: #A78BFA;
+                }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-section-label {
+            color: #444;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0 8px;
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+            .sidebar-link:hover {
+                background: #ffffff08;
+                color: #fff;
+                text-decoration: none;
+            }
+
+            .sidebar-link.active {
+                background: linear-gradient(135deg, #A78BFA22, #4ECDC422);
+                color: #A78BFA;
+                border: 1px solid #A78BFA22;
+            }
+
+            .sidebar-link .link-icon {
+                font-size: 16px;
+                width: 20px;
+                text-align: center;
+            }
+
+        .sidebar-bottom {
+            border-top: 1px solid #ffffff08;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #ffffff06;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #A78BFA, #4ECDC4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #0F0F1A;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            color: #555;
+            font-size: 11px;
+        }
+
+        .btn-sidebar-logout {
+            width: 100%;
+            background: #FF6B6B18;
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B22;
+            padding: 9px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+            .btn-sidebar-logout:hover {
+                background: #FF6B6B33;
+                border-color: #FF6B6B44;
+            }
+
+        .btn-sidebar-auth {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 9px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .btn-login-sidebar {
+            background: linear-gradient(135deg, #A78BFA, #4ECDC4);
+            color: #0F0F1A !important;
+        }
+
+        .btn-register-sidebar {
+            background: transparent;
+            color: #aaa !important;
+            border: 1px solid #ffffff18;
+        }
+
+            .btn-register-sidebar:hover {
+                background: #ffffff08;
+                color: #fff !important;
+                text-decoration: none;
+            }
+
+        /* Theme toggle in sidebar */
+        .theme-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+
+        .theme-toggle-label {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+            .theme-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .theme-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff15;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+            .theme-slider:before {
+                content: '';
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                left: 3px;
+                bottom: 3px;
+                background: #888;
+                border-radius: 50%;
+                transition: 0.3s;
+            }
+
+        .theme-switch input:checked + .theme-slider {
+            background: #A78BFA44;
+        }
+
+            .theme-switch input:checked + .theme-slider:before {
+                transform: translateX(20px);
+                background: #A78BFA;
+            }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top bar (only shown when logged in) */
+        .topbar {
+            background: #141420;
+            border-bottom: 1px solid #ffffff08;
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-content {
+            flex: 1;
+            padding: 0;
+            padding-bottom: 48px;
+        }
+
+        .footer-bar {
+            background: #141420;
+            border-top: 1px solid #ffffff08;
+            padding: 12px 32px;
+            color: #444;
+            font-size: 12px;
+            position: fixed;
+            bottom: 0;
+            left: 240px;
+            right: 0;
+            z-index: 40;
+        }
+
+        @@media (max-width: 768px) {
+            .footer-bar {
+                left: 0;
+            }
+        }
+
+        body.light-mode .footer-bar {
+            background: #fff;
+            border-top-color: #e8e8f0;
+            color: #aaa;
+        }
+
+        /* ── LIGHT MODE ── */
+        body.light-mode {
+            background: #EEF2FF;
+            color: #1a1a2e;
+        }
+
+            body.light-mode .sidebar {
+                background: #fff;
+                border-right-color: #e8e8f0;
+            }
+
+            body.light-mode .sidebar-brand .brand-name {
+                color: #1a1a2e;
+            }
+
+            body.light-mode .sidebar-link {
+                color: #666;
+            }
+
+                body.light-mode .sidebar-link:hover {
+                    background: #f0f0ff;
+                    color: #1a1a2e;
+                }
+
+                body.light-mode .sidebar-link.active {
+                    background: #A78BFA18;
+                    color: #7c3aed;
+                    border-color: #A78BFA33;
+                }
+
+            body.light-mode .nav-section-label {
+                color: #bbb;
+            }
+
+            body.light-mode .user-card {
+                background: #f5f5ff;
+            }
+
+            body.light-mode .user-name {
+                color: #1a1a2e;
+            }
+
+            body.light-mode .topbar {
+                background: #fff;
+                border-bottom-color: #e8e8f0;
+            }
+
+            body.light-mode .topbar-title {
+                color: #1a1a2e;
+            }
+
+            body.light-mode .footer-bar {
+                background: #fff;
+                border-top-color: #e8e8f0;
+                color: #aaa;
+            }
+
+            body.light-mode .theme-toggle-label {
+                color: #aaa;
+            }
+
+            body.light-mode .stat-card,
+            body.light-mode .chart-card,
+            body.light-mode .form-card,
+            body.light-mode .login-card,
+            body.light-mode .detail-box {
+                background: #fff !important;
+                box-shadow: 0 2px 12px #0000000a;
+            }
+
+            body.light-mode .dark-table,
+            body.light-mode .expense-table {
+                background: #fff !important;
+                border-color: #e8e8f0 !important;
+            }
+
+                body.light-mode .dark-table thead tr,
+                body.light-mode .expense-table thead tr {
+                    background: #f5f5ff !important;
+                }
+
+                body.light-mode .dark-table th,
+                body.light-mode .expense-table th {
+                    color: #999 !important;
+                }
+
+                body.light-mode .dark-table td,
+                body.light-mode .expense-table td {
+                    color: #333 !important;
+                }
+
+                body.light-mode .dark-table tbody tr:hover,
+                body.light-mode .expense-table tbody tr:hover {
+                    background: #f9f9ff !important;
+                }
+
+            body.light-mode .page-title {
+                color: #1a1a2e !important;
+            }
+
+            body.light-mode .section-title {
+                color: #1a1a2e !important;
+            }
+
+            body.light-mode .stat-card h5 {
+                color: #999 !important;
+            }
+
+            body.light-mode .form-group-dark input,
+            body.light-mode .form-group-dark select,
+            body.light-mode .form-group-dark textarea {
+                background: #f5f5ff !important;
+                color: #1a1a2e !important;
+                border-color: #ddd !important;
+            }
+
+            body.light-mode .form-group-dark label {
+                color: #777 !important;
+            }
+
+            body.light-mode .form-card h2,
+            body.light-mode .login-card h2 {
+                color: #1a1a2e !important;
+            }
+
+            body.light-mode .form-subtitle,
+            body.light-mode .login-subtitle {
+                color: #999 !important;
+            }
+
+            body.light-mode .expense-page,
+            body.light-mode .admin-page,
+            body.light-mode .dash-page {
+                background: #EEF2FF !important;
+            }
+
+            body.light-mode .form-page {
+                background: #EEF2FF !important;
+            }
+
+            body.light-mode .hero {
+                background: linear-gradient(135deg, #EEF2FF 0%, #dde4ff 50%, #EEF2FF 100%) !important;
+            }
+
+                body.light-mode .hero h1 {
+                    color: #1a1a2e !important;
+                }
+
+                body.light-mode .hero p {
+                    color: #666 !important;
+                }
+
+            body.light-mode .stat-card {
+                border-color: #e8e8f0 !important;
+            }
+
+            body.light-mode .chart-card {
+                border-color: #e8e8f0 !important;
+            }
+
+        /* ── MOBILE ── */
+        @@media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Remove bootstrap container constraints */
+        .container {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+
+        .burger-btn {
+            display: none;
+            background: transparent;
+            border: 1px solid #ffffff18;
+            color: #ccc;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+            .burger-btn:hover {
+                background: #ffffff0a;
+            }
+
+        body.light-mode .burger-btn {
+            border-color: #ddd;
+            color: #555;
+        }
+
+            body.light-mode .burger-btn:hover {
+                background: #f0f0f0;
+            }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+        @@media (max-width: 768px) {
+            .burger-btn {
+                display: flex;
+            }
+
+            .topbar {
+                padding: 14px 16px;
+            }
+
+            .page-content, .footer-bar {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+
+            <a class="sidebar-brand" asp-controller="Home" asp-action="Index">
+                <div class="brand-icon"></div>
+                <div class="brand-name">Expense<span>Tracker</span></div>
+            </a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main</div>
+
+                <a class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                   asp-controller="Home" asp-action="Index">
+                    <span class="link-icon"></span> Home
+                </a>
+
+                <a class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Expense" ? "active" : "")"
+                   asp-controller="Expense" asp-action="Index">
+                    <span class="link-icon"></span> Expenses
+                </a>
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")"
+                       asp-controller="Home" asp-action="Dashboard">
+                        <span class="link-icon"></span> Dashboard
+                    </a>
+                }
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" ? "active" : "")"
+                       asp-controller="Profile" asp-action="Index">
+                        <span class="link-icon"></span> Profile
+                    </a>
+                }
+            </nav>
+
+            <div class="sidebar-bottom">
+
+                <!-- Theme toggle -->
+                <div class="theme-toggle-row">
+                    <span class="theme-toggle-label">Dark Mode</span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle" />
+                        <span class="theme-slider"></span>
+                    </label>
+                </div>
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    var userId = UserManager.GetUserId(User);
+                    // We'll just use initials in sidebar, full pic on profile page
+                    <div class="user-card">
+                        <div class="user-avatar">
+                            @UserManager.GetUserName(User)?.Substring(0, 1).ToUpper()
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">@UserManager.GetUserName(User)</div>
+                            <div class="user-role">User</div>
+                        </div>
+                    </div>
+
+                    <form asp-area="Identity" asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home")"
+                          method="post">
+                        <button type="submit" class="btn-sidebar-logout">
+                            Sign Out
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn-sidebar-auth btn-login-sidebar"
+                       asp-area="Identity" asp-page="/Account/Login">
+                        Login
+                    </a>
+                    <a class="btn-sidebar-auth btn-register-sidebar"
+                       asp-area="Identity" asp-page="/Account/Register">
+                        Register
+                    </a>
+                }
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <div class="topbar">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <button class="burger-btn" id="burgerBtn">☰</button>
+                    <span class="topbar-title">@ViewData["Title"]</span>
+                </div>
+                <div class="topbar-right">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <span style="color:#666; font-size:13px;">
+                            @UserManager.GetUserName(User)
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="page-content">
+                @RenderBody()
+            </div>
+
+            <div class="footer-bar">
+                &copy; 2026 ExpenseTracker — Built with ASP.NET Core
+            </div>
+        </div>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const toggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // Dark mode is default (toggle ON = dark mode)
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            toggle.checked = false;
+        } else {
+            body.classList.remove('light-mode');
+            toggle.checked = true;
+        }
+
+        toggle.addEventListener('change', () => {
+            const isDark = toggle.checked;
+            body.classList.toggle('light-mode', !isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+    <script>
+        const burgerBtn = document.getElementById('burgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        burgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    </script>
+</body>
+</html>

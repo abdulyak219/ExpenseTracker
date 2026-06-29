@@ -1,0 +1,180 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model ExpenseTracker.Models.UserProfile
+
+@{
+    ViewData["Title"] = "My Profile";
+    var initial = (ViewBag.Username as string)?.Substring(0, 1).ToUpper();
+    var hasPicture = !string.IsNullOrEmpty(Model.ProfilePicturePath);
+}
+
+<style>
+    .profile-page { min-height:100vh; background:#0F0F1A; padding:32px; font-family:'Inter',sans-serif; }
+    body.light-mode .profile-page { background:#EEF2FF; }
+
+    .profile-grid { display:grid; grid-template-columns:300px 1fr; gap:24px; max-width:1000px; margin:0 auto; }
+    @@media(max-width:768px) { .profile-grid { grid-template-columns:1fr; } }
+
+    .profile-card { background:#141420; border:1px solid #ffffff10; border-radius:16px; padding:28px; text-align:center; }
+    body.light-mode .profile-card { background:#fff; border-color:#e8e8f0; box-shadow:0 2px 12px #0000000a; }
+
+    .avatar-wrap { position:relative; display:inline-block; margin-bottom:16px; }
+
+    .profile-avatar {
+        width:100px; height:100px;
+        border-radius:50%;
+        background:linear-gradient(135deg,#A78BFA,#4ECDC4);
+        display:flex; align-items:center; justify-content:center;
+        font-size:36px; font-weight:700; color:#0F0F1A;
+        margin:0 auto;
+        overflow:hidden;
+    }
+
+    .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+
+    .avatar-edit-btn {
+        position:absolute; bottom:4px; right:4px;
+        width:28px; height:28px;
+        background:linear-gradient(135deg,#A78BFA,#4ECDC4);
+        border-radius:50%; border:none;
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; font-size:13px;
+    }
+
+    .profile-name { color:#fff; font-size:18px; font-weight:700; margin-bottom:4px; }
+    body.light-mode .profile-name { color:#1a1a2e; }
+    .profile-email { color:#555; font-size:13px; margin-bottom:20px; }
+
+    .profile-stat { background:#ffffff06; border-radius:10px; padding:12px; margin-bottom:8px; }
+    body.light-mode .profile-stat { background:#f5f5ff; }
+    .profile-stat-label { color:#666; font-size:11px; text-transform:uppercase; letter-spacing:1px; }
+    .profile-stat-val { color:#A78BFA; font-size:16px; font-weight:700; margin-top:2px; }
+
+    .settings-card { background:#141420; border:1px solid #ffffff10; border-radius:16px; padding:28px; margin-bottom:20px; }
+    body.light-mode .settings-card { background:#fff; border-color:#e8e8f0; box-shadow:0 2px 12px #0000000a; }
+
+    .settings-title { color:#fff; font-size:16px; font-weight:600; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid #ffffff08; }
+    body.light-mode .settings-title { color:#1a1a2e; border-bottom-color:#e8e8f0; }
+
+    .form-group-dark { margin-bottom:16px; }
+    .form-group-dark label { color:#888; font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:block; }
+    body.light-mode .form-group-dark label { color:#777; }
+
+    .form-group-dark input {
+        width:100%; background:#0F0F1A; border:1px solid #ffffff15;
+        color:#fff; border-radius:10px; padding:11px 14px;
+        font-size:14px; outline:none; transition:border-color 0.2s; box-sizing:border-box;
+    }
+    body.light-mode .form-group-dark input { background:#f5f5ff; color:#1a1a2e; border-color:#ddd; }
+
+    .form-group-dark input:focus { border-color:#A78BFA; box-shadow:0 0 0 3px #A78BFA18; }
+
+    .btn-save {
+        background:linear-gradient(135deg,#A78BFA,#4ECDC4);
+        color:#0F0F1A; border:none; padding:11px 24px;
+        border-radius:10px; font-weight:700; font-size:14px;
+        cursor:pointer; transition:opacity 0.2s;
+    }
+    .btn-save:hover { opacity:0.85; }
+
+    .btn-danger-outline {
+        background:transparent; color:#FF6B6B;
+        border:1px solid #FF6B6B33; padding:11px 24px;
+        border-radius:10px; font-weight:600; font-size:14px;
+        cursor:pointer; transition:all 0.2s;
+    }
+    .btn-danger-outline:hover { background:#FF6B6B22; }
+
+    .alert-success { background:#34D39922; border:1px solid #34D39933; color:#34D399; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-size:14px; }
+    .alert-error { background:#FF6B6B22; border:1px solid #FF6B6B33; color:#FF6B6B; border-radius:10px; padding:12px 18px; margin-bottom:20px; font-size:14px; }
+
+    #pictureInput { display:none; }
+</style>
+
+<div class="profile-page">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success" style="max-width:1000px; margin:0 auto 20px;">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error" style="max-width:1000px; margin:0 auto 20px;">❌ @TempData["Error"]</div>
+    }
+
+    <div class="profile-grid">
+
+        <!-- Left: Profile Card -->
+        <div>
+            <div class="profile-card">
+                <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" id="profileForm">
+
+                    <div class="avatar-wrap">
+                        <div class="profile-avatar" id="avatarPreview">
+                            @if (hasPicture)
+                            {
+                                <img src="@Model.ProfilePicturePath" alt="Profile" id="avatarImg" />
+                            }
+                            else
+                            {
+                                <span id="avatarInitial">@initial</span>
+                            }
+                        </div>
+                        <button type="button" class="avatar-edit-btn" onclick="document.getElementById('pictureInput').click()">✏️</button>
+                        <input type="file" name="profilePicture" id="pictureInput" accept="image/*" onchange="previewImage(this)" />
+                    </div>
+
+                    <div class="profile-name">@(Model.DisplayName ?? ViewBag.Username)</div>
+                    <div class="profile-email">@ViewBag.Email</div>
+
+                    <div class="form-group-dark" style="text-align:left;">
+                        <label>Display Name</label>
+                        <input type="text" name="displayName" value="@Model.DisplayName" placeholder="Enter display name" />
+                    </div>
+
+                    <button type="submit" class="btn-save" style="width:100%;">Save Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Settings -->
+        <div>
+
+            <!-- Change Password -->
+            <div class="settings-card">
+                <div class="settings-title">Change Password</div>
+                <form asp-action="ChangePassword" method="post">
+                    <div class="form-group-dark">
+                        <label>Current Password</label>
+                        <input type="password" name="currentPassword" placeholder="••••••••" />
+                    </div>
+                    <div class="form-group-dark">
+                        <label>New Password</label>
+                        <input type="password" name="newPassword" placeholder="••••••••" />
+                    </div>
+                    <div class="form-group-dark">
+                        <label>Confirm New Password</label>
+                        <input type="password" name="confirmPassword" placeholder="••••••••" />
+                    </div>
+                    <button type="submit" class="btn-save">Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('avatarPreview');
+                    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

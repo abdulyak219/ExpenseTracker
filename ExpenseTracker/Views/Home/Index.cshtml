@@ -1,0 +1,325 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .hero {
+        min-height: calc(100vh - 110px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+        position: relative;
+        overflow: hidden;
+        background: #0d1f0f;
+    }
+
+        /* Subtle radial glow in center */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(ellipse at center, #1a4a2044 0%, #0f2d1222 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Soft corner glows for depth */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 20% 20%, #1e5c2a18 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, #14421e18 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+    body.light-mode .hero {
+        background: #e8f5e9;
+    }
+
+        body.light-mode .hero::before {
+            background: radial-gradient(ellipse at center, #a5d6a744 0%, #c8e6c922 40%, transparent 70%);
+        }
+
+        body.light-mode .hero::after {
+            background: radial-gradient(ellipse at 20% 20%, #81c78418 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, #66bb6a18 0%, transparent 50%);
+        }
+
+    /* All content above background */
+    .hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .badge-tag {
+        background: #1e5c2a33;
+        border: 1px solid #2d8a3e44;
+        color: #4ade80;
+        font-size: 12px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        padding: 6px 18px;
+        border-radius: 20px;
+        margin-bottom: 24px;
+        display: inline-block;
+    }
+
+    body.light-mode .badge-tag {
+        background: #2e7d3218;
+        border-color: #2e7d3233;
+        color: #2e7d32;
+    }
+
+    .hero h1 {
+        font-size: clamp(36px, 6vw, 64px);
+        font-weight: 800;
+        color: #e8f5e9;
+        margin: 0 0 16px;
+        line-height: 1.15;
+        letter-spacing: -1px;
+    }
+
+    body.light-mode .hero h1 {
+        color: #1a2e1a;
+    }
+
+    .typed-line {
+        background: linear-gradient(90deg, #4ade80, #34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+        min-height: 1.15em;
+    }
+
+    .cursor-blink {
+        display: inline-block;
+        width: 3px;
+        background: #4ade80;
+        -webkit-text-fill-color: #4ade80;
+        margin-left: 2px;
+        animation: blink 0.9s step-end infinite;
+    }
+
+    @@keyframes blink {
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    .hero p {
+        color: #86efac;
+        font-size: 18px;
+        max-width: 500px;
+        margin: 0 0 40px;
+        line-height: 1.6;
+        opacity: 0.8;
+    }
+
+    body.light-mode .hero p {
+        color: #388e3c;
+        opacity: 1;
+    }
+
+    .btn-group-hero {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 36px;
+    }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px #22c55e44;
+    }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px #22c55e66;
+            color: #fff;
+            text-decoration: none;
+        }
+
+    .btn-hero-outline {
+        background: transparent;
+        color: #86efac;
+        padding: 14px 32px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        border: 1px solid #4ade8033;
+        transition: all 0.2s;
+    }
+
+    body.light-mode .btn-hero-outline {
+        color: #2e7d32;
+        border-color: #2e7d3244;
+    }
+
+    .btn-hero-outline:hover {
+        background: #4ade800f;
+        color: #4ade80;
+        text-decoration: none;
+        border-color: #4ade8066;
+    }
+
+    .dots-indicator {
+        display: flex;
+        gap: 6px;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #4ade8044;
+        animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+    @@keyframes dotPulse {
+        0%, 80%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        40% {
+            opacity: 1;
+            transform: scale(1.2);
+            background: #4ade80;
+        }
+    }
+
+    /* Floating leaf shapes for organic feel */
+    .leaf {
+        position: absolute;
+        border-radius: 50% 0 50% 0;
+        opacity: 0.04;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .leaf-1 {
+        width: 200px;
+        height: 200px;
+        background: #4ade80;
+        top: 10%;
+        left: 5%;
+        transform: rotate(45deg);
+    }
+
+    .leaf-2 {
+        width: 150px;
+        height: 150px;
+        background: #22c55e;
+        bottom: 15%;
+        right: 8%;
+        transform: rotate(-30deg);
+    }
+
+    .leaf-3 {
+        width: 100px;
+        height: 100px;
+        background: #86efac;
+        top: 60%;
+        left: 15%;
+        transform: rotate(20deg);
+    }
+
+    .leaf-4 {
+        width: 120px;
+        height: 120px;
+        background: #34d399;
+        top: 20%;
+        right: 20%;
+        transform: rotate(60deg);
+    }
+</style>
+
+<div class="hero">
+    <!-- Decorative leaf shapes -->
+    <div class="leaf leaf-1"></div>
+    <div class="leaf leaf-2"></div>
+    <div class="leaf leaf-3"></div>
+    <div class="leaf leaf-4"></div>
+
+    <div class="hero-content">
+        <div class="badge-tag">🌿 Smart Finance</div>
+
+        <h1>
+            Track Every<br>
+            <span class="typed-line" id="typedText"></span><span class="cursor-blink">&nbsp;</span>
+        </h1>
+
+        <p>Stay on top of your finances. Log expenses, spot trends, and take control of your money — all in one place.</p>
+
+        <div class="btn-group-hero">
+            <a asp-controller="Expense" asp-action="Index" class="btn-hero-primary">View Expenses</a>
+            <a asp-controller="Expense" asp-action="Create" class="btn-hero-outline">+ Add Expense</a>
+        </div>
+
+        <div class="dots-indicator">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const words = ["Naira You Spend", "Penny You Save", "Coin You Track"];
+        let wordIndex = 0, charIndex = 0, isDeleting = false;
+        const el = document.getElementById('typedText');
+
+        function type() {
+            const word = words[wordIndex];
+            el.textContent = isDeleting
+                ? word.substring(0, charIndex - 1)
+                : word.substring(0, charIndex + 1);
+            isDeleting ? charIndex-- : charIndex++;
+            let speed = isDeleting ? 40 : 80;
+            if (!isDeleting && charIndex === word.length) { speed = 1800; isDeleting = true; }
+            else if (isDeleting && charIndex === 0) { isDeleting = false; wordIndex = (wordIndex + 1) % words.length; speed = 400; }
+            setTimeout(type, speed);
+        }
+        type();
+    </script>
+}

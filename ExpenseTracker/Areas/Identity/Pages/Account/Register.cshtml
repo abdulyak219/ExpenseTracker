@@ -1,0 +1,171 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    .login-page {
+        min-height: 90vh;
+        background: #0F0F1A;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .login-card {
+        background: #141420;
+        border: 1px solid #ffffff10;
+        border-radius: 18px;
+        padding: 40px;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .login-card h2 {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .login-card h2 span {
+        background: linear-gradient(90deg, #A78BFA, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .login-subtitle {
+        color: #555;
+        font-size: 13px;
+        margin-bottom: 32px;
+    }
+
+    .form-group-dark {
+        margin-bottom: 20px;
+    }
+
+    .form-group-dark label {
+        color: #888;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-group-dark input {
+        width: 100%;
+        background: #0F0F1A;
+        border: 1px solid #ffffff15;
+        color: #fff;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-group-dark input:focus {
+        border-color: #A78BFA;
+        box-shadow: 0 0 0 3px #A78BFA18;
+    }
+
+    .form-group-dark input::placeholder { color: #444; }
+
+    .btn-register {
+        width: 100%;
+        background: linear-gradient(135deg, #A78BFA, #4ECDC4);
+        color: #0F0F1A;
+        border: none;
+        padding: 13px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        margin-bottom: 20px;
+    }
+
+    .btn-register:hover { opacity: 0.85; }
+
+    .login-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border-top: 1px solid #ffffff08;
+        padding-top: 20px;
+    }
+
+    .login-links a {
+        color: #666;
+        font-size: 13px;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .login-links a:hover { color: #A78BFA; }
+
+    .text-danger { color: #FF6B6B !important; font-size: 12px; margin-top: 4px; display: block; }
+
+    .validation-summary {
+        background: #FF6B6B22;
+        border: 1px solid #FF6B6B33;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 20px;
+        color: #FF6B6B;
+        font-size: 13px;
+    }
+</style>
+
+<div class="login-page">
+    <div class="login-card">
+
+        <h2>Create <span>Account</span></h2>
+        <p class="login-subtitle">Sign up to start tracking your expenses</p>
+
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+            <div class="form-group-dark">
+                <label asp-for="Input.Email">Email</label>
+                <input asp-for="Input.Email" autocomplete="username"
+                       placeholder="name@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Input.Password">Password</label>
+                <input asp-for="Input.Password" autocomplete="new-password"
+                       placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-dark">
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <input asp-for="Input.ConfirmPassword" autocomplete="new-password"
+                       placeholder="••••••••" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="btn-register">
+                Create Account
+            </button>
+
+            <div class="login-links">
+                <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">
+                    Already have an account? Log in
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

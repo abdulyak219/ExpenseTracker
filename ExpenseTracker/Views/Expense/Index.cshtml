@@ -1,0 +1,621 @@
+﻿@model IEnumerable<ExpenseTracker.Models.Expense>
+
+@{
+    ViewData["Title"] = "Expenses";
+}
+
+<style>
+    .expense-page {
+        min-height: 100vh;
+        background: #0F0F1A;
+        padding: 24px 16px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    @@media(min-width: 768px) {
+        .expense-page {
+            padding: 40px 32px;
+        }
+    }
+
+    body.light-mode .expense-page {
+        background: #EEF2FF;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-title {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    body.light-mode .page-title {
+        color: #1a1a2e;
+    }
+
+    .page-title span {
+        background: linear-gradient(90deg, #A78BFA, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    @@media(min-width: 640px) {
+        .stats-row {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .stat-card {
+        background: #141420;
+        border: 1px solid #ffffff10;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    body.light-mode .stat-card {
+        background: #fff;
+        border-color: #e8e8f0;
+    }
+
+    .stat-card h5 {
+        color: #888;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .stat-card .stat-val {
+        color: #FFE66D;
+        font-size: 16px;
+        font-weight: 700;
+        word-break: break-all;
+    }
+
+    .stat-card.blue .stat-val {
+        color: #4ECDC4;
+    }
+
+    .stat-card.green .stat-val {
+        color: #34D399;
+    }
+
+    .stat-card.red .stat-val {
+        color: #FF6B6B;
+    }
+
+    .toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    @@media(min-width: 640px) {
+        .toolbar {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    }
+
+    .toolbar input, .toolbar select {
+        background: #141420;
+        border: 1px solid #ffffff15;
+        color: #ccc;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    @@media(min-width: 640px) {
+        .toolbar input {
+            width: 200px;
+        }
+
+        .toolbar select {
+            width: 180px;
+        }
+    }
+
+    body.light-mode .toolbar input,
+    body.light-mode .toolbar select {
+        background: #fff;
+        color: #1a1a2e;
+        border-color: #ddd;
+    }
+
+    .toolbar input::placeholder {
+        color: #555;
+    }
+
+    .toolbar input:focus, .toolbar select:focus {
+        border-color: #A78BFA;
+    }
+
+    .toolbar select option {
+        background: #1a1a2e;
+    }
+
+    .btn-dark-primary {
+        background: linear-gradient(135deg, #A78BFA, #4ECDC4);
+        color: #0F0F1A;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: opacity 0.2s;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    @@media(min-width: 640px) {
+        .btn-dark-primary {
+            width: auto;
+        }
+    }
+
+    .btn-dark-primary:hover {
+        opacity: 0.85;
+        color: #0F0F1A;
+        text-decoration: none;
+    }
+
+    .btn-dark-outline {
+        background: transparent;
+        color: #aaa;
+        border: 1px solid #ffffff18;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    @@media(min-width: 640px) {
+        .btn-dark-outline {
+            width: auto;
+        }
+    }
+
+    .btn-dark-outline:hover {
+        color: #fff;
+        border-color: #ffffff44;
+        background: #ffffff0a;
+        text-decoration: none;
+    }
+
+    body.light-mode .btn-dark-outline {
+        color: #666;
+        border-color: #ddd;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    @@media(min-width: 640px) {
+        .header-actions {
+            width: auto;
+        }
+    }
+
+    /* ── DESKTOP TABLE ── */
+    .desktop-table {
+        display: none;
+    }
+
+    @@media(min-width: 768px) {
+        .desktop-table {
+            display: block;
+        }
+    }
+
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #141420;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #ffffff10;
+        table-layout: fixed;
+    }
+
+    body.light-mode .expense-table {
+        background: #fff;
+        border-color: #e8e8f0;
+    }
+
+    .expense-table thead tr {
+        background: #1a1a2e;
+        border-bottom: 1px solid #ffffff10;
+    }
+
+    body.light-mode .expense-table thead tr {
+        background: #f5f5ff;
+    }
+
+    .expense-table th {
+        color: #888;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 12px 14px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    body.light-mode .expense-table th {
+        color: #999;
+    }
+
+    .expense-table tbody tr {
+        border-bottom: 1px solid #ffffff08;
+        transition: background 0.15s;
+    }
+
+        .expense-table tbody tr:hover {
+            background: #1a1a2e;
+        }
+
+    body.light-mode .expense-table tbody tr:hover {
+        background: #f9f9ff;
+    }
+
+    .expense-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .expense-table td {
+        padding: 12px 14px;
+        color: #ccc;
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    body.light-mode .expense-table td {
+        color: #333;
+    }
+
+    .amount-cell {
+        color: #FFE66D;
+        font-weight: 600;
+    }
+
+    /* ── MOBILE CARDS ── */
+    .mobile-cards {
+        display: block;
+    }
+
+    @@media(min-width: 768px) {
+        .mobile-cards {
+            display: none;
+        }
+    }
+
+    .expense-card {
+        background: #141420;
+        border: 1px solid #ffffff10;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    body.light-mode .expense-card {
+        background: #fff;
+        border-color: #e8e8f0;
+    }
+
+    .expense-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .expense-card-title {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    body.light-mode .expense-card-title {
+        color: #1a1a2e;
+    }
+
+    .expense-card-amount {
+        color: #FFE66D;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .expense-card-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+        align-items: center;
+    }
+
+    .expense-card-date {
+        color: #666;
+        font-size: 12px;
+    }
+
+    .expense-card-desc {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .expense-card-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge-category {
+        background: #A78BFA22;
+        color: #A78BFA;
+        border: 1px solid #A78BFA33;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+    }
+
+    .btn-edit {
+        background: #FFE66D22;
+        color: #FFE66D;
+        border: 1px solid #FFE66D33;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+        flex: 1;
+        text-align: center;
+    }
+
+        .btn-edit:hover {
+            background: #FFE66D44;
+            color: #FFE66D;
+            text-decoration: none;
+        }
+
+    .btn-delete {
+        background: #FF6B6B22;
+        color: #FF6B6B;
+        border: 1px solid #FF6B6B33;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+        flex: 1;
+        text-align: center;
+    }
+
+        .btn-delete:hover {
+            background: #FF6B6B44;
+            color: #FF6B6B;
+            text-decoration: none;
+        }
+
+    .alert-dark-success {
+        background: #34D39922;
+        border: 1px solid #34D39933;
+        color: #34D399;
+        border-radius: 10px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .budget-alert {
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .budget-alert.danger {
+            background: #FF6B6B18;
+            border: 1px solid #FF6B6B44;
+            border-left: 4px solid #FF6B6B;
+            color: #FF6B6B;
+        }
+
+        .budget-alert.warning {
+            background: #FFE66D18;
+            border: 1px solid #FFE66D44;
+            border-left: 4px solid #FFE66D;
+            color: #FFE66D;
+        }
+</style>
+
+<div class="expense-page">
+
+    @{
+        var budget = ViewBag.Budget as ExpenseTracker.Models.Budget;
+        var monthlySpent = (decimal)(ViewBag.MonthlySpent ?? 0);
+        var totalSpent = (decimal)(ViewBag.TotalSpentAll ?? 0);
+    }
+
+    @if (budget?.MonthlyBudget.HasValue == true && monthlySpent >= budget.MonthlyBudget.Value)
+    {
+        <div class="budget-alert danger">
+            🚨 <span><strong>Monthly budget exceeded!</strong> Spent ₦@monthlySpent.ToString("N2") of ₦@budget.MonthlyBudget?.ToString("N2")</span>
+        </div>
+    }
+    else if (budget?.MonthlyBudget.HasValue == true && monthlySpent >= budget.MonthlyBudget.Value * 0.8m)
+    {
+        <div class="budget-alert warning">
+            ⚠️ <span><strong>Approaching monthly budget!</strong> Spent ₦@monthlySpent.ToString("N2") of ₦@budget.MonthlyBudget?.ToString("N2")</span>
+        </div>
+    }
+
+    @if (budget?.TotalBudget.HasValue == true && totalSpent >= budget.TotalBudget.Value)
+    {
+        <div class="budget-alert danger">
+            🚨 <span><strong>Total budget exceeded!</strong> Spent ₦@totalSpent.ToString("N2") of ₦@budget.TotalBudget?.ToString("N2")</span>
+        </div>
+    }
+    else if (budget?.TotalBudget.HasValue == true && totalSpent >= budget.TotalBudget.Value * 0.8m)
+    {
+        <div class="budget-alert warning">
+            ⚠️ <span><strong>Approaching total budget!</strong> Spent ₦@totalSpent.ToString("N2") of ₦@budget.TotalBudget?.ToString("N2")</span>
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-dark-success">✅ @TempData["Success"]</div>
+    }
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">My <span>Expenses</span></h1>
+        <div class="header-actions">
+            <a asp-action="Create" class="btn-dark-primary">+ Add Expense</a>
+            <a asp-controller="Home" asp-action="Index" class="btn-dark-outline">← Home</a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <h5>Total Expenses</h5>
+            <div class="stat-val">₦@ViewBag.TotalExpenses.ToString("N2")</div>
+        </div>
+        <div class="stat-card blue">
+            <h5>Monthly Total</h5>
+            <div class="stat-val">₦@ViewBag.MonthlyTotal.ToString("N2")</div>
+        </div>
+        <div class="stat-card green">
+            <h5>Expense Count</h5>
+            <div class="stat-val">@ViewBag.MonthlyCount</div>
+        </div>
+        <div class="stat-card red">
+            <h5>Highest Expense</h5>
+            <div class="stat-val">₦@ViewBag.HighestExpense.ToString("N2")</div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <form asp-action="Index" method="get">
+        <div class="toolbar">
+            <input type="text" name="searchTerm" placeholder="Search expenses..." />
+            <select name="sortOrder">
+                <option value="">Sort By</option>
+                <option value="amount_asc">Amount (Low → High)</option>
+                <option value="amount_desc">Amount (High → Low)</option>
+                <option value="date_asc">Date (Oldest → Newest)</option>
+                <option value="date_desc">Date (Newest → Oldest)</option>
+                <option value="title_desc">Title (Z → A)</option>
+            </select>
+            <button type="submit" class="btn-dark-primary" style="width:auto;">Search / Apply</button>
+        </div>
+    </form>
+
+    <!-- DESKTOP: Table -->
+    <div class="desktop-table">
+        <table class="expense-table">
+            <thead>
+                <tr>
+                    <th style="width:40px;">Id</th>
+                    <th>Title</th>
+                    <th style="width:130px;">Amount</th>
+                    <th style="width:120px;">Category</th>
+                    <th style="width:100px;">Date</th>
+                    <th>Description</th>
+                    <th style="width:120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var expense in Model)
+                {
+                    <tr>
+                        <td style="color:#555;">@expense.Id</td>
+                        <td style="color:#fff; font-weight:500;">@expense.Title</td>
+                        <td class="amount-cell">₦@expense.Amount.ToString("N2")</td>
+                        <td><span class="badge-category">@expense.Category</span></td>
+                        <td>@expense.Date.ToShortDateString()</td>
+                        <td>@expense.Description</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@expense.Id" class="btn-edit" style="flex:none; padding:4px 10px;">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@expense.Id" class="btn-delete" style="flex:none; padding:4px 10px; margin-left:4px;">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MOBILE: Cards -->
+    <div class="mobile-cards">
+        @foreach (var expense in Model)
+        {
+            <div class="expense-card">
+                <div class="expense-card-header">
+                    <span class="expense-card-title">@expense.Title</span>
+                    <span class="expense-card-amount">₦@expense.Amount.ToString("N2")</span>
+                </div>
+                <div class="expense-card-meta">
+                    <span class="badge-category">@expense.Category</span>
+                    <span class="expense-card-date">📅 @expense.Date.ToShortDateString()</span>
+                </div>
+                @if (!string.IsNullOrEmpty(expense.Description))
+                {
+                    <div class="expense-card-desc">📝 @expense.Description</div>
+                }
+                <div class="expense-card-actions">
+                    <a asp-action="Edit" asp-route-id="@expense.Id" class="btn-edit">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@expense.Id" class="btn-delete">🗑️ Delete</a>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

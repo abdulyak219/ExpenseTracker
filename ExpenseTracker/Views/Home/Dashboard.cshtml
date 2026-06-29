@@ -1,0 +1,404 @@
+﻿@{
+    ViewData["Title"] = "Overview Dashboard";
+}
+
+<style>
+    .dash-page { min-height: 100vh; background: transparent; padding: 32px; font-family: 'Segoe UI',sans-serif; width: 100%; box-sizing: border-box; }
+    .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+    .page-title { color:#fff; font-size:26px; font-weight:700; margin:0; }
+    .page-title span { background:linear-gradient(90deg,#A78BFA,#4ECDC4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; width:100%; }
+    @@media(max-width:768px) { .stats-row { grid-template-columns:repeat(2,1fr); } }
+
+    .stat-card { background:#141420; border:1px solid #ffffff10; border-radius:12px; padding:16px 20px; }
+    .stat-card h5 { color:#888; font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+    .stat-card .stat-val { font-size:22px; font-weight:700; }
+    .purple { color:#A78BFA; } .teal { color:#4ECDC4; } .yellow { color:#FFE66D; } .green { color:#34D399; }
+
+    .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; width:100%; }
+    @@media(max-width:768px) { .charts-row { grid-template-columns:1fr; } }
+
+    .chart-card { background:#141420; border:1px solid #ffffff10; border-radius:12px; padding:20px; }
+    .chart-card h4 { color:#fff; font-size:13px; font-weight:600; margin-bottom:16px; }
+
+    .section-title { color:#fff; font-size:16px; font-weight:600; margin-bottom:14px; }
+    .dark-table { width:100%; border-collapse:collapse; background:#141420; border-radius:12px; overflow:hidden; border:1px solid #ffffff10; }
+    .dark-table thead tr { background:#1a1a2e; border-bottom:1px solid #ffffff10; }
+    .dark-table th { color:#888; font-size:11px; text-transform:uppercase; letter-spacing:1px; padding:12px 14px; text-align:left; font-weight:500; }
+    .dark-table tbody tr { border-bottom:1px solid #ffffff08; transition:background 0.15s; }
+    .dark-table tbody tr:hover { background:#1a1a2e; }
+    .dark-table tbody tr:last-child { border-bottom:none; }
+    .dark-table td { padding:12px 14px; color:#ccc; font-size:13px; }
+    .amount-cell { color:#FFE66D; font-weight:600; }
+    .badge-category { background:#A78BFA22; color:#A78BFA; border:1px solid #A78BFA33; padding:2px 10px; border-radius:20px; font-size:11px; }
+    .btn-outline { background:transparent; color:#aaa; border:1px solid #ffffff18; padding:8px 16px; border-radius:8px; font-size:13px; text-decoration:none; transition:all 0.2s; display:inline-block; }
+    .btn-outline:hover { color:#fff; border-color:#ffffff44; background:#ffffff0a; text-decoration:none; }
+
+    .budget-section {
+        margin-bottom: 24px;
+    }
+
+    .budget-card {
+        background: #141420;
+        border: 1px solid #ffffff10;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+    }
+
+    body.light-mode .budget-card {
+        background: #fff;
+        border-color: #e8e8f0;
+    }
+
+    .budget-card h4 {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    body.light-mode .budget-card h4 {
+        color: #1a1a2e;
+    }
+
+    .budget-warning {
+        background: #FF6B6B18;
+        border: 1px solid #FF6B6B44;
+        border-left: 4px solid #FF6B6B;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        color: #FF6B6B;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .budget-caution {
+        background: #FFE66D18;
+        border: 1px solid #FFE66D44;
+        border-left: 4px solid #FFE66D;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        color: #FFE66D;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .progress-bar-wrap {
+        background: #ffffff08;
+        border-radius: 20px;
+        height: 8px;
+        margin: 8px 0 4px;
+        overflow: hidden;
+    }
+
+    body.light-mode .progress-bar-wrap {
+        background: #e8e8f0;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 20px;
+        transition: width 0.5s;
+    }
+
+    .progress-green {
+        background: linear-gradient(90deg,#34D399,#4ECDC4);
+    }
+
+    .progress-yellow {
+        background: linear-gradient(90deg,#FFE66D,#F97316);
+    }
+
+    .progress-red {
+        background: linear-gradient(90deg,#FF6B6B,#F97316);
+    }
+
+    .budget-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #666;
+    }
+
+    .budget-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    @@media(max-width:600px) {
+        .budget-form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .budget-input {
+        background: #0F0F1A;
+        border: 1px solid #ffffff15;
+        color: #fff;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+    }
+
+    body.light-mode .budget-input {
+        background: #f5f5ff;
+        color: #1a1a2e;
+        border-color: #ddd;
+    }
+
+    .budget-input:focus {
+        border-color: #A78BFA;
+        box-shadow: 0 0 0 3px #A78BFA18;
+    }
+
+    .budget-label {
+        color: #888;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    body.light-mode .budget-label {
+        color: #777;
+    }
+</style>
+
+<div class="dash-page">
+
+    <div class="page-header">
+        <h1 class="page-title">Overview <span>Dashboard</span></h1>
+        <a asp-controller="Expense" asp-action="Index" class="btn-outline">My Expenses</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <h5>Total Users</h5>
+            <div class="stat-val purple">@ViewBag.TotalUsers</div>
+        </div>
+        <div class="stat-card">
+            <h5>Total Amount</h5>
+            <div class="stat-val yellow">₦@ViewBag.TotalExpenses.ToString("N2")</div>
+        </div>
+        <div class="stat-card">
+            <h5>Expenses</h5>
+            <div class="stat-val teal">@ViewBag.TotalCount</div>
+        </div>
+        <div class="stat-card">
+            <h5>Categories</h5>
+            <div class="stat-val green">@(((IEnumerable<dynamic>)ViewBag.CategoryData).Count())</div>
+        </div>
+    </div>
+    @{
+        var budget = ViewBag.Budget as ExpenseTracker.Models.Budget;
+        var monthlySpent = (decimal)(ViewBag.MonthlySpent ?? 0);
+        var totalSpent = (decimal)(ViewBag.TotalExpenses ?? 0);
+
+        bool monthlyWarning = budget?.MonthlyBudget.HasValue == true && monthlySpent >= budget.MonthlyBudget.Value;
+        bool totalWarning = budget?.TotalBudget.HasValue == true && totalSpent >= budget.TotalBudget.Value;
+
+        decimal monthlyPct = (budget?.MonthlyBudget.HasValue == true && budget.MonthlyBudget.Value > 0)
+        ? Math.Min((monthlySpent / budget.MonthlyBudget.Value) * 100, 100) : 0;
+        decimal totalPct = (budget?.TotalBudget.HasValue == true && budget.TotalBudget.Value > 0)
+        ? Math.Min((totalSpent / budget.TotalBudget.Value) * 100, 100) : 0;
+    }
+
+    <!-- Budget Alerts -->
+    @if (monthlyWarning)
+    {
+        <div class="budget-warning">
+            You have reached your <strong>monthly budget</strong> of ₦@budget.MonthlyBudget?.ToString("N2")! Spent: ₦@monthlySpent.ToString("N2")
+        </div>
+    }
+    else if (budget?.MonthlyBudget.HasValue == true && monthlyPct >= 80)
+    {
+        <div class="budget-caution">
+            You have used <strong>@monthlyPct.ToString("0")%</strong> of your monthly budget. Spent: ₦@monthlySpent.ToString("N2") / ₦@budget.MonthlyBudget?.ToString("N2")
+        </div>
+    }
+
+    @if (totalWarning)
+    {
+        <div class="budget-warning">
+            You have reached your <strong>total budget</strong> of ₦@budget.TotalBudget?.ToString("N2")! Spent: ₦@totalSpent.ToString("N2")
+        </div>
+    }
+    else if (budget?.TotalBudget.HasValue == true && totalPct >= 80)
+    {
+        <div class="budget-caution">
+            You have used <strong>@totalPct.ToString("0")%</strong> of your total budget. Spent: ₦@totalSpent.ToString("N2") / ₦@budget.TotalBudget?.ToString("N2")
+        </div>
+    }
+
+    <!-- Budget Section -->
+    <div class="budget-section">
+        <div class="budget-card">
+            <h4>Budget Tracker</h4>
+
+            @if (budget?.MonthlyBudget.HasValue == true)
+            {
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#ccc; font-size:13px;">Monthly Budget</span>
+                        <span style="color:#FFE66D; font-size:13px; font-weight:600;">₦@monthlySpent.ToString("N2") / ₦@budget.MonthlyBudget?.ToString("N2")</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill @(monthlyPct >= 100 ? "progress-red" : monthlyPct >= 80 ? "progress-yellow" : "progress-green")"
+                             style="width:@monthlyPct%"></div>
+                    </div>
+                    <div class="budget-labels">
+                        <span>@monthlyPct.ToString("0")% used</span>
+                        <span>₦@((budget.MonthlyBudget.Value - monthlySpent).ToString("N2")) remaining</span>
+                    </div>
+                </div>
+            }
+
+            @if (budget?.TotalBudget.HasValue == true)
+            {
+                <div style="margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#ccc; font-size:13px;">Total Budget</span>
+                        <span style="color:#FFE66D; font-size:13px; font-weight:600;">₦@totalSpent.ToString("N2") / ₦@budget.TotalBudget?.ToString("N2")</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill @(totalPct >= 100 ? "progress-red" : totalPct >= 80 ? "progress-yellow" : "progress-green")"
+                             style="width:@totalPct%"></div>
+                    </div>
+                    <div class="budget-labels">
+                        <span>@totalPct.ToString("0")% used</span>
+                        <span>₦@((budget.TotalBudget.Value - totalSpent).ToString("N2")) remaining</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Set Budget Form -->
+            <form asp-controller="Home" asp-action="SetBudget" method="post" style="margin-top:20px; padding-top:16px; border-top:1px solid #ffffff08;">
+                <div style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">Set / Update Budget</div>
+                <div class="budget-form-row">
+                    <div>
+                        <label class="budget-label">Monthly Budget (₦)</label>
+                        <input type="number" name="monthlyBudget" class="budget-input"
+                               value="@budget?.MonthlyBudget" placeholder="e.g. 50000" step="0.01" />
+                    </div>
+                    <div>
+                        <label class="budget-label">Total Budget (₦)</label>
+                        <input type="number" name="totalBudget" class="budget-input"
+                               value="@budget?.TotalBudget" placeholder="e.g. 500000" step="0.01" />
+                    </div>
+                </div>
+                <button type="submit" style="margin-top:14px; background:linear-gradient(135deg,#A78BFA,#4ECDC4); color:#0F0F1A; border:none; padding:10px 24px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer;">
+                    Save Budget
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <h4>Expenses by Category</h4>
+            <canvas id="categoryChart" height="180"></canvas>
+        </div>
+        <div class="chart-card">
+            <h4>Monthly Spending Trend</h4>
+            <canvas id="monthlyChart" height="180"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="section-title">Recent Expenses</div>
+    <table class="dark-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.RecentExpenses)
+            {
+                <tr>
+                    <td style="color:#fff; font-weight:500;">@item.Title</td>
+                    <td class="amount-cell">₦@item.Amount.ToString("N2")</td>
+                    <td><span class="badge-category">@item.Category</span></td>
+                    <td>@item.Date.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#A78BFA','#F97316','#34D399'];
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.CategoryData).Select(x => $"\"{x.Category}\"")))],
+            datasets: [{
+                data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.CategoryData).Select(x => x.Total)))],
+                backgroundColor: colors,
+                borderColor: '#141420',
+                borderWidth: 2,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position:'bottom', labels:{ color:'#888', padding:12, font:{ size:11 } } },
+                tooltip: { callbacks: { label: ctx => ` ₦${Number(ctx.parsed).toLocaleString()}` } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MonthlyData).Select(x => $"\"{ new DateTime((int)x.Year, (int)x.Month, 1).ToString("MMM yyyy")}\"")))],
+            datasets: [{
+                label: 'Spending',
+                data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MonthlyData).Select(x => x.Total)))],
+                borderColor: '#A78BFA',
+                backgroundColor: '#A78BFA22',
+                borderWidth: 2,
+                pointBackgroundColor: '#A78BFA',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                x: { ticks:{ color:'#888', font:{ size:11 } }, grid:{ color:'#ffffff08' } },
+                y: { ticks:{ color:'#888', font:{ size:11 }, callback: v => '₦'+Number(v).toLocaleString() }, grid:{ color:'#ffffff08' } }
+            },
+            plugins: {
+                legend: { display:false },
+                tooltip: { callbacks: { label: ctx => ` ₦${Number(ctx.parsed.y).toLocaleString()}` } }
+            }
+        }
+    });
+</script>
+}
