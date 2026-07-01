@@ -648,7 +648,7 @@
                 @if (SignInManager.IsSignedIn(User))
                 {
                     var userId = UserManager.GetUserId(User);
-                    // We'll just use initials in sidebar, full pic on profile page
+                   
                     <div class="user-card">
                         <div class="user-avatar">
                             @UserManager.GetUserName(User)?.Substring(0, 1).ToUpper()
