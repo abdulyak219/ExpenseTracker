@@ -1,4 +1,4 @@
-using ExpenseTracker.Data;
+﻿using ExpenseTracker.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,15 +6,14 @@ namespace ExpenseTracker
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
 
-            // Only register DbContext ONCE (you had it twice)
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -25,6 +24,14 @@ namespace ExpenseTracker
 
             var app = builder.Build();
 
+            // ✅ Auto migrate on startup
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider
+                    .GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
+            }
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -34,8 +41,6 @@ namespace ExpenseTracker
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
-
-            // Authentication MUST come before Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -43,11 +48,9 @@ namespace ExpenseTracker
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            // Add this so Identity login/register pages work
             app.MapRazorPages();
 
             app.Run();
-
         }
     }
 }
