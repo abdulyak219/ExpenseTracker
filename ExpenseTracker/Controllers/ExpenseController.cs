@@ -106,15 +106,14 @@ namespace ExpenseTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Ensure the date is UTC before saving
+                expense.Date = DateTime.SpecifyKind(expense.Date, DateTimeKind.Utc);
+
                 _context.Expenses.Add(expense);
-
                 _context.SaveChanges();
-
-                TempData["Success"] = "Expense added successfully.";
-
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = "Expense added successfully!";
+                return RedirectToAction("Index");
             }
-
             return View(expense);
         }
 
@@ -146,6 +145,8 @@ namespace ExpenseTracker.Controllers
 
             if (ModelState.IsValid)
             {
+                expense.Date = DateTime.SpecifyKind(expense.Date, DateTimeKind.Utc);
+
                 _context.Expenses.Update(expense);
 
                 _context.SaveChanges();
@@ -158,6 +159,7 @@ namespace ExpenseTracker.Controllers
             return View(expense);
         }
 
+        // GET: Expense/Delete/5
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -165,8 +167,7 @@ namespace ExpenseTracker.Controllers
                 return NotFound();
             }
 
-            var expense = _context.Expenses.Find(id);
-
+            var expense = _context.Expenses.FirstOrDefault(e => e.Id == id);
             if (expense == null)
             {
                 return NotFound();
@@ -175,23 +176,18 @@ namespace ExpenseTracker.Controllers
             return View(expense);
         }
 
+        // POST: Expense/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             var expense = _context.Expenses.Find(id);
-
-            if (expense == null)
+            if (expense != null)
             {
-                return NotFound();
+                _context.Expenses.Remove(expense);
+                _context.SaveChanges();
+                TempData["Success"] = "Expense deleted successfully!";
             }
-
-            _context.Expenses.Remove(expense);
-
-            _context.SaveChanges();
-
-            TempData["Success"] = "Expense deleted successfully.";
-
             return RedirectToAction(nameof(Index));
         }
     }
